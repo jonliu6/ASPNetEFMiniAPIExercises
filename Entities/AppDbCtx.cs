@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace MinimalAPIsWithASPNetEF.Entities
 {
@@ -26,12 +27,15 @@ namespace MinimalAPIsWithASPNetEF.Entities
             modelBuilder.Entity<Movie>().Property(p => p.Title).HasMaxLength(200);
             modelBuilder.Entity<Movie>().Property(p => p.Poster).IsUnicode();
             modelBuilder.Entity<Comment>().Property(p => p.Body).HasMaxLength(100);
+            modelBuilder.Entity<ActorMovie>().HasKey(am => new { am.MovieId, am.ActorId });
         }
 
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Actor> Actors { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Comment> Comments { get; set; }
+
+        public DbSet<ActorMovie> ActorsMovies { get; set; }
 
     }
 }

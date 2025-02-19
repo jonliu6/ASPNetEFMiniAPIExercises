@@ -23,3 +23,11 @@ CREATE TABLE Comment (
   body NVARCHAR(100) NOT NULL,
   movieId INT
 );
+
+CREATE TABLE ActorMovie (
+  actorId INT,
+  movieId INT,
+  [order] INT,
+  character NVARCHAR(50),
+  CONSTRAINT pk_actor_movie PRIMARY KEY (actorId, movieId)
+);

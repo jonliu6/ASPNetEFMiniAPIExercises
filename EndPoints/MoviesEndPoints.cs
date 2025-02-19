@@ -21,6 +21,7 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             group.MapGet("/getByTitle{title}", GetByTitle);
             group.MapPut("/{id:int}", Update).DisableAntiforgery();
             group.MapDelete("/{id:int}", Delete);
+            group.MapPost("/{id:int}/assignActors", AssignActors);
             return group;
         }
 
@@ -104,6 +105,33 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             await repo.Delete(id);
             await fileStorage.Delete(movie.Poster, container);
             await cacheStore.EvictByTagAsync("movies-get", default);
+
+            return TypedResults.NoContent();
+        }
+
+        static async Task<Results<NoContent, NotFound, BadRequest<string>>> AssignActors(int id, List<AssignActorMovieDTO> actorsDto, IMoviesRepository moviesRepo, IActorsRepository actorsRepo, IMapper mapper)
+        {
+            if (!await moviesRepo.Exists(id))
+            {
+                return TypedResults.NotFound();
+            }
+
+            var existingActors = new List<int>();
+            var actorIds = actorsDto.Select(a => a.ActorId).ToList();
+
+            if (actorIds.Count != 0)
+            {
+                existingActors = await actorsRepo.Exists(actorIds);
+            }
+
+            if (existingActors.Count != actorsDto.Count) { 
+                var nonExistingActors = actorIds.Except(existingActors);
+                var nonExistingActorsCSV = string.Join(", ", nonExistingActors);
+                return TypedResults.BadRequest($"The actors of id {nonExistingActorsCSV} do not exist.");
+            }
+
+            var actors = mapper.Map<List < ActorMovie >> (actorsDto);
+            await moviesRepo.Assign(id, actors);
 
             return TypedResults.NoContent();
         }

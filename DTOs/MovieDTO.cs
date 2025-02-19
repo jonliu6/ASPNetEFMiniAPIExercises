@@ -7,5 +7,7 @@
         public bool IsReleased { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string? Poster { get; set; }
+
+        public List<ActorMovieDTO> Actors { get; set; } = new List<ActorMovieDTO>();
     }
 }

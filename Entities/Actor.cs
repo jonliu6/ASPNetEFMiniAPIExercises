@@ -14,5 +14,7 @@ namespace MinimalAPIsWithASPNetEF.Entities
         [Column("picture")]
         public string? Picture { get; set; }
 
+        public List<ActorMovie> ActorsMovies { get; set; } = new List<ActorMovie>();
+
     }
 }

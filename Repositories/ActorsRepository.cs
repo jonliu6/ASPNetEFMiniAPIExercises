@@ -61,6 +61,11 @@ namespace MinimalAPIsWithASPNetEF.Repositories
             return await dbCtx.Actors.AnyAsync(a => a.Id == id);
         }
 
+        public async Task<List<int>> Exists(List<int> ids)
+        {
+            return await dbCtx.Actors.Where(a => ids.Contains(a.Id)).Select(a => a.Id).ToListAsync();
+        }
+
         /// <summary>
         /// not return any
         /// </summary>

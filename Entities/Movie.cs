@@ -10,5 +10,7 @@ namespace MinimalAPIsWithASPNetEF.Entities
         public bool IsReleased { get; set; }
         public DateTime ReleaseDate { get; set; }
         public string? Poster {  get; set; }
+
+        public List<ActorMovie> ActorsMovies { get; set; } = new List<ActorMovie>();
     }
 }
