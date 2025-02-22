@@ -37,5 +37,7 @@ namespace MinimalAPIsWithASPNetEF.Entities
 
         public DbSet<ActorMovie> ActorsMovies { get; set; }
 
+        public DbSet<Error> Errors { get; set; }
+
     }
 }

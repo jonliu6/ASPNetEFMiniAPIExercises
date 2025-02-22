@@ -8,6 +8,7 @@ namespace MinimalAPIsWithASPNetEF.Repositories
         Task<int> Create(Genre genre);
         Task Delete(int id);
         Task<bool> Exists(int id);
+        Task<bool> Exists(int id, string name);
         Task<List<Genre>> GetAll(PaginationDTO pagination);
         Task<Genre?> GetById(int id);
         Task Update(Genre genre);

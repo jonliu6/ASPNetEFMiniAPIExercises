@@ -31,3 +31,11 @@ CREATE TABLE ActorMovie (
   character NVARCHAR(50),
   CONSTRAINT pk_actor_movie PRIMARY KEY (actorId, movieId)
 );
+
+CREATE TABLE Errors (
+  id NVARCHAR(256) NOT NULL,
+  errormessage NVARCHAR(500),
+  stacktrace NVARCHAR(1000),
+  errordate DATE,
+  CONSTRAINT pk_error PRIMARY KEY (id)
+);

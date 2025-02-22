@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Extensions.FileProviders;
 using MinimalAPIsWithASPNetEF.DTOs;
 using MinimalAPIsWithASPNetEF.Entities;
+using MinimalAPIsWithASPNetEF.Filters;
 using MinimalAPIsWithASPNetEF.Repositories;
 using MinimalAPIsWithASPNetEF.Services;
 using System.ComponentModel;
@@ -19,7 +21,7 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromMinutes(5)).Tag("actors-get"));
             group.MapGet("/{id:int}", GetById);
             group.MapGet("/getByName/{name}", GetByName); // URL: http://<server>:<port>/actors/getByName/{name}
-            group.MapPost("/", Create).DisableAntiforgery(); // antiForgery is used in MVC but not miniAPIs, so disable it here
+            group.MapPost("/", Create).DisableAntiforgery().AddEndpointFilter<GenericValidationFilter<CreateActorDTO>>(); // antiForgery is used in MVC but not miniAPIs, so disable it here
             group.MapPut("/{id:int}", Update).DisableAntiforgery(); // http://<server>:<port>/actors/{id}
             group.MapDelete("/{id:int}", Delete);
             return group;
@@ -52,10 +54,20 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             return TypedResults.Ok(actorsDto);
         }
 
+        // Task<Results<Created<ActorDTO>, ValidationProblem>>
         static async Task<Created<ActorDTO>> Create([FromForm] CreateActorDTO createActorDto,
-            IActorsRepository repo, IOutputCacheStore outCacheStore, IMapper mapper, IFileStorage fileStorage
+            IActorsRepository repo, IOutputCacheStore outCacheStore, IMapper mapper,
+            // IValidator<CreateActorDTO> validator,
+            IFileStorage fileStorage
             )
         {
+            // moved to GenericValidationFilter
+            //var validationResult = await validator.ValidateAsync(createActorDto);
+            //if (!validationResult.IsValid)
+            //{
+            //    return TypedResults.ValidationProblem(validationResult.ToDictionary());
+            //}
+
             var actor = mapper.Map<Actor>(createActorDto);
             if (createActorDto.Picture is not null)
             {

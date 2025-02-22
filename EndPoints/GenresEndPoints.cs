@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using MinimalAPIsWithASPNetEF.DTOs;
 using MinimalAPIsWithASPNetEF.Entities;
+using MinimalAPIsWithASPNetEF.Filters;
 using MinimalAPIsWithASPNetEF.Repositories;
 using MinimalAPIsWithASPNetEF.Services;
 
@@ -13,16 +15,27 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
     {
         public static RouteGroupBuilder MapGenres(this RouteGroupBuilder group)
         {
-            group.MapPost("/", Create).DisableAntiforgery();
+            group.MapPost("/", Create).DisableAntiforgery().AddEndpointFilter<GenreValidationFilter>();
             group.MapGet("/", GetAll).CacheOutput(g => g.Expire(TimeSpan.FromMinutes(5)).Tag("genres-get"));
-            group.MapGet("/{id:int}", GetById);
-            group.MapPut("/{id:int}", Update).DisableAntiforgery(); // http://<server>:<port>/genres/{id}
+            // use a custom filter 
+            group.MapGet("/{id:int}", GetById); //.AddEndpointFilter<TestFilter>();
+            group.MapPut("/{id:int}", Update).DisableAntiforgery().AddEndpointFilter<GenericValidationFilter<CreateGenreDTO>>(); // http://<server>:<port>/genres/{id}
             group.MapDelete("/{id:int}", Delete);
             return group;
         }
 
-        static async Task<Results<Created<GenreDTO>, NotFound>> Create(CreateGenreDTO createGenreDto, IGenresRepository repo, IMapper mapper, IOutputCacheStore outCacheStore)
+        static async Task<Results<Created<GenreDTO>, NotFound>> Create(CreateGenreDTO createGenreDto, 
+            IGenresRepository repo, IMapper mapper, 
+            // IValidator<CreateGenreDTO> validator,
+            IOutputCacheStore outCacheStore)
         {
+            // validation for createGenreDto. The following validation logic is moved to GenreValidationFilter
+            //var validationResult = await validator.ValidateAsync(createGenreDto);
+            //if (!validationResult.IsValid)
+            //{
+            //    return TypedResults.ValidationProblem(validationResult.ToDictionary());
+            //}
+
             var genre = mapper.Map<Genre>(createGenreDto);
             var id = await repo.Create(genre);
             await outCacheStore.EvictByTagAsync("genres-get", default);
@@ -50,10 +63,20 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             return TypedResults.Ok(genreDto);
         }
 
+        // Task<Results<NoContent, NotFound, ValidationProblem>>
         static async Task<Results<NoContent, NotFound>> Update(int id, CreateGenreDTO createGenreDto,
-            IGenresRepository repo, IOutputCacheStore outCacheStore, IMapper mapper
+            IGenresRepository repo, IOutputCacheStore outCacheStore,
+            // IValidator<CreateGenreDTO> validator,
+            IMapper mapper
             )
         {
+            // validation for createGenreDto. The following logic is moved to GenericValidationFilter
+            //var validationResult = await validator.ValidateAsync(createGenreDto);
+            //if (!validationResult.IsValid)
+            //{
+            //    return TypedResults.ValidationProblem(validationResult.ToDictionary());
+            //}
+
             // find the original record
             var genre = await repo.GetById(id);
             if (genre is null)

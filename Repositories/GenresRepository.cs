@@ -24,6 +24,17 @@ namespace MinimalAPIsWithASPNetEF.Repositories
             return await dbCtx.Genres.AnyAsync(a => a.Id == id);
         }
 
+        /// <summary>
+        /// used for validation rules
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<bool> Exists(int id, string name)
+        {
+            return await dbCtx.Genres.AnyAsync(a => a.Id != id && a.Name == name); // check Genre name exists with a different id already
+        }
+
         public async Task<List<Genre>> GetAll(PaginationDTO pagination)
         {
             var queryable = dbCtx.Genres.AsQueryable();
