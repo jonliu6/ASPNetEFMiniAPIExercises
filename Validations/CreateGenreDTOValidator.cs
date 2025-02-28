@@ -18,7 +18,7 @@ namespace MinimalAPIsWithASPNetEF.Validations
             }
             RuleFor(r => r.Name)
                 .NotEmpty().WithMessage(ValidationUtils.NOT_EMPTY_MESSAGE)
-                .MaximumLength(100).WithMessage("The field {PropertyName} must be less than {MaxLength} characters!")
+                .MaximumLength(100).WithMessage(ValidationUtils.MAX_LENGTH_MESSAGE)
                 .Must(ValidationUtils.IsFirstLetterUppercase).WithMessage("The field {PropertyName} must be capitalized!")
                 .MustAsync(async(name, _) => {
                     var exists = await repo.Exists(id, name);

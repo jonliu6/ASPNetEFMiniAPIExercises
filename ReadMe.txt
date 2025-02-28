@@ -28,3 +28,9 @@ Steps to implement:
 6. create and modify EndPoint static classes
 7. modify Program.cs to add services, mapGroup etc
 
+For authentication JWT Token, use the following .Net command
+dotnet user-jwts create
+
+https://generate.plus/en/base64 to generate a secret
+
+https://jwt.io to see the Token

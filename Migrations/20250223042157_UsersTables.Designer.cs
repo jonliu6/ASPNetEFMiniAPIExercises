@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MinimalAPIsWithASPNetEF.Entities;
 
@@ -11,9 +12,11 @@ using MinimalAPIsWithASPNetEF.Entities;
 namespace MinimalAPIsWithASPNetEF.Migrations
 {
     [DbContext(typeof(AppDbCtx))]
-    partial class AppDbCtxModelSnapshot : ModelSnapshot
+    [Migration("20250223042157_UsersTables")]
+    partial class UsersTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -287,13 +290,7 @@ namespace MinimalAPIsWithASPNetEF.Migrations
                     b.Property<int>("MovieId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Comment");
                 });
@@ -435,17 +432,6 @@ namespace MinimalAPIsWithASPNetEF.Migrations
                     b.Navigation("Actor");
 
                     b.Navigation("Movie");
-                });
-
-            modelBuilder.Entity("MinimalAPIsWithASPNetEF.Entities.Comment", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MinimalAPIsWithASPNetEF.Entities.Actor", b =>

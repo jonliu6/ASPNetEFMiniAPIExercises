@@ -18,12 +18,17 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
         private readonly static string container = "actors"; // have an actors folder
         public static RouteGroupBuilder MapActors(this RouteGroupBuilder group)
         {
-            group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromMinutes(5)).Tag("actors-get"));
+            group.MapGet("/", GetAll).CacheOutput(c => c.Expire(TimeSpan.FromMinutes(5)).Tag("actors-get")); // to be used by any users
             group.MapGet("/{id:int}", GetById);
             group.MapGet("/getByName/{name}", GetByName); // URL: http://<server>:<port>/actors/getByName/{name}
-            group.MapPost("/", Create).DisableAntiforgery().AddEndpointFilter<GenericValidationFilter<CreateActorDTO>>(); // antiForgery is used in MVC but not miniAPIs, so disable it here
-            group.MapPut("/{id:int}", Update).DisableAntiforgery(); // http://<server>:<port>/actors/{id}
-            group.MapDelete("/{id:int}", Delete);
+            group.MapPost("/", Create).DisableAntiforgery() // antiForgery is used in MVC but not miniAPIs, so disable it here
+                .AddEndpointFilter<GenericValidationFilter<CreateActorDTO>>()
+                .RequireAuthorization("isadmin"); // only admin can create; otherwise, HTTP 403
+            group.MapPut("/{id:int}", Update)
+                .DisableAntiforgery()
+                .RequireAuthorization("isadmin"); // only admin can update,  http://<server>:<port>/actors/{id}
+            group.MapDelete("/{id:int}", Delete)
+                .RequireAuthorization("isadmin"); // only admin can delete
             return group;
         }
 

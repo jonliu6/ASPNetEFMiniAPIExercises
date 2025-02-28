@@ -16,7 +16,8 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
         public static RouteGroupBuilder MapGenres(this RouteGroupBuilder group)
         {
             group.MapPost("/", Create).DisableAntiforgery().AddEndpointFilter<GenreValidationFilter>();
-            group.MapGet("/", GetAll).CacheOutput(g => g.Expire(TimeSpan.FromMinutes(5)).Tag("genres-get"));
+            group.MapGet("/", GetAll).CacheOutput(g => g.Expire(TimeSpan.FromMinutes(5)).Tag("genres-get"))
+                .RequireAuthorization(); // in command window, execute "dotnet user-jwts create" to create a token and add to authentication header (using Postman) to test
             // use a custom filter 
             group.MapGet("/{id:int}", GetById); //.AddEndpointFilter<TestFilter>();
             group.MapPut("/{id:int}", Update).DisableAntiforgery().AddEndpointFilter<GenericValidationFilter<CreateGenreDTO>>(); // http://<server>:<port>/genres/{id}

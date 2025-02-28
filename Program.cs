@@ -1,10 +1,13 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MinimalAPIsWithASPNetEF.EndPoints;
 using MinimalAPIsWithASPNetEF.Entities;
 using MinimalAPIsWithASPNetEF.Repositories;
 using MinimalAPIsWithASPNetEF.Services;
+using MinimalAPIsWithASPNetEF.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 // The following DbContext object is for SQL Server
 builder.Services.AddDbContext<AppDbCtx>(options => options.UseSqlServer(config.GetConnectionString("SqlServerDb")));
+
+// register Identity
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddEntityFrameworkStores<AppDbCtx>()
+    .AddDefaultTokenProviders();
+builder.Services.AddScoped<UserManager<IdentityUser>>();
+builder.Services.AddScoped<SignInManager<IdentityUser>>(); // allowing users to sign/log in
 
 builder.Services.AddOutputCache();
 
@@ -23,6 +33,7 @@ builder.Services.AddScoped<IErrorsRepository, ErrorsRepository>();
 
 builder.Services.AddTransient<IFileStorage, LocalFileStorage>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IUsersService, UsersService>();
 
 // add mapper
 builder.Services.AddAutoMapper(typeof(Program));
@@ -32,6 +43,27 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // add problem details
 builder.Services.AddProblemDetails();
+
+// add authentication and authorization
+builder.Services.AddAuthentication().AddJwtBearer(options => 
+{
+    options.MapInboundClaims = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        IssuerSigningKeys = KeysHandler.GetAllKeys(builder.Configuration)
+        // IssuerSigningKey = KeysHandler.GetKey(builder.Configuration).First() // this is for only one key from particular issuer
+    };
+}); // this authentication schema requires JWTBearer package
+builder.Services.AddAuthorization(options =>
+{
+    // add a policy consists claim name = isadmin
+    options.AddPolicy("isadmin", policy => policy.RequireClaim("isadmin"));
+});
 
 // Add services to the container.
 
@@ -91,7 +123,8 @@ app.MapGet("/error", () => {
 app.MapGroup("/genres").MapGenres();
 app.MapGroup("/actors").MapActors();
 app.MapGroup("/movies").MapMovies();
-app.MapGroup("movies/{movieId:int}/comments").MapComments();
+app.MapGroup("/movies/{movieId:int}/comments").MapComments();
+app.MapGroup("/users").MapUsers();
 
 // Middlewares zone ended
 app.Run();
