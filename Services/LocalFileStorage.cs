@@ -1,4 +1,6 @@
 ﻿
+using Path = System.IO.Path;
+
 namespace MinimalAPIsWithASPNetEF.Services
 {
     /// <summary>

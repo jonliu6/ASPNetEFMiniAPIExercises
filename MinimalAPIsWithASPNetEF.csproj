@@ -10,8 +10,12 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="14.0.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0-preview1" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="15.1.0-p.14" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="15.1.0-p.14" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="15.1.0-p.14" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
@@ -19,6 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
   </ItemGroup>
 
   <ItemGroup>

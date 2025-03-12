@@ -4,6 +4,6 @@ namespace MinimalAPIsWithASPNetEF.Repositories
 {
     public interface IErrorsRepository
     {
-        Task create(Error err);
+        Task create(CustomError err);
     }
 }

@@ -23,10 +23,12 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             group.MapGet("/getByName/{name}", GetByName); // URL: http://<server>:<port>/actors/getByName/{name}
             group.MapPost("/", Create).DisableAntiforgery() // antiForgery is used in MVC but not miniAPIs, so disable it here
                 .AddEndpointFilter<GenericValidationFilter<CreateActorDTO>>()
-                .RequireAuthorization("isadmin"); // only admin can create; otherwise, HTTP 403
+                .RequireAuthorization("isadmin")
+                .WithOpenApi(); // only admin can create; otherwise, HTTP 403
             group.MapPut("/{id:int}", Update)
                 .DisableAntiforgery()
-                .RequireAuthorization("isadmin"); // only admin can update,  http://<server>:<port>/actors/{id}
+                .RequireAuthorization("isadmin")
+                .WithOpenApi(); // only admin can update,  http://<server>:<port>/actors/{id}
             group.MapDelete("/{id:int}", Delete)
                 .RequireAuthorization("isadmin"); // only admin can delete
             return group;

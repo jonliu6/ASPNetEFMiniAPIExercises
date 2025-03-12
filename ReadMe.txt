@@ -34,3 +34,70 @@ dotnet user-jwts create
 https://generate.plus/en/base64 to generate a secret
 
 https://jwt.io to see the Token
+
+GraphSQL URL: https://localhost:7081/graphql/, instead of https://localhost:7081/swagger/index.html
+- create document as the following and run
+query{
+    genres(order: [ {
+       name: DESC
+    }], first: 3){
+        nodes{
+            id
+            name
+        }
+    }
+}
+
+query{
+    genres(where:  {
+       id:  {
+          gt: 4
+       }
+    }){
+        nodes{
+            id
+            name
+        }
+    }
+}
+
+query{
+    genres(where:  {
+        name:  {
+           contains: "r"
+        }
+    }){
+        nodes{
+            id
+            name
+        }
+    }
+}
+
+query{
+  movies(where:  {
+     isReleased:  {
+        eq: false
+     }
+  }){
+    nodes {
+      id
+      isReleased
+      releaseDate
+      actorsMovies {
+        actor {
+          name
+          dateOfBirth
+        }
+      }
+    }
+  }
+}
+
+mutation{
+  insertGenre(createDto:  {
+     name: "Graph QL"
+  }){
+    name
+  }
+}

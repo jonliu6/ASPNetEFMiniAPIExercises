@@ -8,6 +8,7 @@ using MinimalAPIsWithASPNetEF.Entities;
 using MinimalAPIsWithASPNetEF.Filters;
 using MinimalAPIsWithASPNetEF.Repositories;
 using MinimalAPIsWithASPNetEF.Services;
+using System.Runtime.InteropServices;
 
 namespace MinimalAPIsWithASPNetEF.EndPoints
 {
@@ -20,7 +21,15 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
                 .RequireAuthorization(); // in command window, execute "dotnet user-jwts create" to create a token and add to authentication header (using Postman) to test
             // use a custom filter 
             group.MapGet("/{id:int}", GetById); //.AddEndpointFilter<TestFilter>();
-            group.MapPut("/{id:int}", Update).DisableAntiforgery().AddEndpointFilter<GenericValidationFilter<CreateGenreDTO>>(); // http://<server>:<port>/genres/{id}
+            group.MapPut("/{id:int}", Update).DisableAntiforgery()
+                .AddEndpointFilter<GenericValidationFilter<CreateGenreDTO>>()
+                .WithOpenApi(options => {
+                    options.Summary = "Genre Update service";
+                    options.Description = "This endpoint is for updating a genre";
+                    options.Parameters[0].Description = "The id of the Genre to update";
+                    options.RequestBody.Description = "The genre to update";
+                    return options;
+                }); // http://<server>:<port>/genres/{id}
             group.MapDelete("/{id:int}", Delete);
             return group;
         }
@@ -44,23 +53,28 @@ namespace MinimalAPIsWithASPNetEF.EndPoints
             return TypedResults.Created($"/genres/{id}", genreDto);
         }
 
-        static async Task<Ok<List<GenreDTO>>> GetAll(IGenresRepository repo, IMapper mapper, int page = 1, int recordsPerPage = 10)
+        static async Task<Ok<List<GenreDTO>>> GetAll(IGenresRepository repo, IMapper mapper, ILoggerFactory logFactory, int page = 1, int recordsPerPage = 10)
         {
+            var type = typeof(GenresEndPoints);
+            var logger = logFactory.CreateLogger(type.FullName!);
+            logger.LogInformation("Get all genres from GetAll()");
+
             var pagination = new PaginationDTO { Page = page, RecordsPerPage = recordsPerPage };
             var genres = await repo.GetAll(pagination);
             var genreDto = mapper.Map<List<GenreDTO>>(genres);
             return TypedResults.Ok(genreDto);
         }
 
-        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById(int id, IGenresRepository repo, IMapper mapper)
+        // use AsParameters to reduce the parameters of the method
+        static async Task<Results<Ok<GenreDTO>, NotFound>> GetById([AsParameters] GetByIdRequestParameters reqParams)
         {
-            var genre = await repo.GetById(id);
+            var genre = await reqParams.Repository.GetById(reqParams.Id);
             if (genre is null)
             {
                 return TypedResults.NotFound();
             }
 
-            var genreDto = mapper.Map<GenreDTO>(genre);
+            var genreDto = reqParams.Mapper.Map<GenreDTO>(genre);
             return TypedResults.Ok(genreDto);
         }
 
