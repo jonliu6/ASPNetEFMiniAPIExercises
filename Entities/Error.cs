@@ -1,6 +1,6 @@
 ﻿namespace MinimalAPIsWithASPNetEF.Entities
 {
-    public class CustomError
+    public class Error
     {
         public Guid Id { get; set; }
         public string ErrorMessage { get; set; } = null!;

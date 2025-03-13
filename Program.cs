@@ -13,6 +13,7 @@ using MinimalAPIsWithASPNetEF.Repositories;
 using MinimalAPIsWithASPNetEF.Services;
 using MinimalAPIsWithASPNetEF.Utilities;
 using System.Security.Cryptography.Xml;
+using Error = MinimalAPIsWithASPNetEF.Entities.Error;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,7 +137,7 @@ if (app.Environment.IsDevelopment())
         // get the error details
         var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
         var exception = exceptionHandlerFeature?.Error!;
-        var err = new CustomError();
+        var err = new Error();
         err.ErrorDate = DateTime.Now;
         err.ErrorMessage = exception.Message;
         err.StackTrace = exception.StackTrace;
